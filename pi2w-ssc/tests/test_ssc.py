@@ -1,3 +1,10 @@
+"""KIỂM THỬ TỰ ĐỘNG cho chương trình trên Pi.
+
+Chạy:  python3 -m unittest discover -s tests -v
+Các test dùng loa/camera/server GIẢ nên chạy được trên máy tính thường.
+Mỗi lớp test kiểm một phần: đọc hiểu câu Gemini, prompt, cấu hình, luồng phát âm,
+chế độ liên tục (nút bật/tắt), tự tìm server.
+"""
 from __future__ import annotations
 
 import sys
@@ -82,20 +89,28 @@ class ConfigTests(unittest.TestCase):
             with patch.dict("os.environ", {}, clear=True):
                 return Config.load(path)
 
-    def test_defaults(self) -> None:
-        config = self._load("MAC_SERVER_URL=http://mac:8765/\nSERVER_TOKEN=t\n")
-        self.assertEqual(config.server_url, "http://mac:8765")
+    def test_defaults_work_without_any_env_file(self) -> None:
+        """Học sinh không tạo .env: mọi giá trị phải có sẵn mặc định."""
+        config = self._load("")
+        self.assertEqual(config.server_url, "")          # "" = tự tìm server
+        self.assertEqual(config.server_token, "d26a5af4e93257eda0aeb44d0db6da1f")
         self.assertEqual(config.touch_gpio, 25)
-        self.assertTrue(config.touch_active_high)
+        self.assertFalse(config.touch_active_high)       # nút bấm nối GND
+        self.assertTrue(config.start_active)
         self.assertEqual(config.lens_position, "")
 
-    def test_requires_server(self) -> None:
+    def test_explicit_server_url(self) -> None:
+        config = self._load("MAC_SERVER_URL=http://mac:8765/\nSERVER_TOKEN=t\n")
+        self.assertEqual(config.server_url, "http://mac:8765")
+        self.assertEqual(config.server_token, "t")
+
+    def test_rejects_bad_server_url(self) -> None:
         with self.assertRaises(ConfigError):
-            self._load("SERVER_TOKEN=t\n")
+            self._load("MAC_SERVER_URL=mac:8765\n")
 
     def test_rejects_bad_gpio(self) -> None:
         with self.assertRaises(ConfigError):
-            self._load("MAC_SERVER_URL=http://m\nSERVER_TOKEN=t\nTOUCH_GPIO=99\n")
+            self._load("TOUCH_GPIO=99\n")
 
 
 class FlowTests(unittest.TestCase):
@@ -139,6 +154,73 @@ class FlowTests(unittest.TestCase):
         cache.get("Rác khác.")
         cache.get("Rác khác.")
         self.assertEqual(calls, ["Rác khác."])
+
+
+class ContinuousModeTests(unittest.TestCase):
+    def test_toggle_flips_and_debounces(self) -> None:
+        toggle = app.Toggle(True)
+        toggle.flip()
+        self.assertFalse(toggle.active)
+        self.assertTrue(toggle.changed.is_set())
+        toggle.flip()  # nằm trong thời gian chống dội
+        self.assertFalse(toggle.active)
+        toggle._last_flip -= 10
+        toggle.flip()
+        self.assertTrue(toggle.active)
+
+    def test_toggle_ignores_touch_while_announcing(self) -> None:
+        toggle = app.Toggle(True)
+        toggle.ignore()
+        toggle.flip()
+        self.assertTrue(toggle.active)
+        toggle.ignore(0)
+        toggle.flip()
+        self.assertFalse(toggle.active)
+
+    def test_startup_announces_server_unreachable_with_own_sound(self) -> None:
+        from server_client import ServerClientError, ServerUnreachableError
+
+        played: list[str] = []
+        errors = iter([ServerUnreachableError("x"), ServerUnreachableError("x"), ServerClientError("HTTP 401"), None])
+
+        def check() -> str:
+            error = next(errors)
+            if error:
+                raise error
+            return "ok"
+
+        with patch.object(app, "_announce", lambda name, config: played.append(name)), \
+             patch.object(app.time, "sleep", lambda seconds: None):
+            app._until_ok("Server", check, SimpleNamespace(), None, "server-error.mp3")  # type: ignore[arg-type]
+        self.assertEqual(played, ["server-error.mp3", "operation-error.mp3"])
+
+    def test_toggle_phrases_exist(self) -> None:
+        self.assertTrue(classifier.SPOKEN[classifier.BAT])
+        self.assertTrue(classifier.SPOKEN[classifier.TAT])
+
+
+class DiscoveryTests(unittest.TestCase):
+    """Pi tự tìm server nhờ tiếng "hét" (beacon) UDP của server."""
+
+    def test_discover_server_from_beacon(self) -> None:
+        import socket
+        import threading
+        import time
+
+        import server_client
+
+        def shout() -> None:
+            time.sleep(0.3)
+            with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sender:
+                sender.sendto(b"AGEYE|8080", ("127.0.0.1", server_client.BEACON_PORT))
+
+        threading.Thread(target=shout, daemon=True).start()
+        self.assertEqual(server_client.discover_server(timeout=3), "http://127.0.0.1:8080")
+
+    def test_discover_ignores_foreign_packets(self) -> None:
+        import server_client
+
+        self.assertIsNone(server_client.discover_server(timeout=0.3))
 
 
 if __name__ == "__main__":

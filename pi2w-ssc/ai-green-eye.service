@@ -1,0 +1,35 @@
+# FILE ĐĂNG KÝ "SERVICE" CHO LINUX (systemd).
+# Service = chương trình chạy ngầm, tự bật khi Pi khởi động và tự bật lại nếu bị lỗi.
+# Học sinh không cần sửa file này.
+
+[Unit]
+Description=AI Green Eye (SSC 2026) - Pi Zero 2 W waste classifier
+# Chờ mạng sẵn sàng rồi mới chạy (chương trình cần Wi-Fi để gọi server).
+Wants=network-online.target
+After=network-online.target tailscaled.service sound.target
+
+[Service]
+Type=simple
+# Chạy bằng người dùng riêng (an toàn hơn chạy bằng root).
+User=aigreeneye
+Group=aigreeneye
+WorkingDirectory=/opt/ai-green-eye
+# Nếu có file .env thì nạp vào (dấu "-" nghĩa là không có cũng không sao).
+EnvironmentFile=-/opt/ai-green-eye/.env
+# In log ngay lập tức (không để dồn lại) để xem bằng journalctl cho kịp thời.
+Environment=PYTHONUNBUFFERED=1
+ExecStart=/usr/bin/python3 /opt/ai-green-eye/app.py
+# Bị lỗi và dừng thì 3 giây sau tự chạy lại.
+Restart=on-failure
+RestartSec=3
+TimeoutStopSec=10
+# Các lớp bảo vệ: không cho chương trình tăng quyền, thư mục tạm riêng, hệ thống chỉ đọc...
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+# ...ngoại trừ thư mục cache/ được phép ghi (để lưu các câu đã đọc).
+ReadWritePaths=/opt/ai-green-eye/cache
+
+[Install]
+# Tự chạy khi Pi khởi động xong.
+WantedBy=multi-user.target

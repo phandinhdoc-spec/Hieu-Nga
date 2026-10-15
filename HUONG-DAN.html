@@ -1,0 +1,390 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hướng dẫn AI Green Eye</title>
+<style>
+  :root { --ink:#1b2a1f; --bg:#f6faf5; --card:#ffffff; --green:#1f7a3d; --soft:#e4f3e7; --warn:#fff3cd; --warnb:#e0b100; --bad:#fde8e8; --badb:#c0392b; --line:#cfe0d2; }
+  @media (prefers-color-scheme: dark) { :root { --ink:#e8f1ea; --bg:#121a14; --card:#1a251d; --green:#6fd08a; --soft:#1f3a27; --warn:#3b3413; --warnb:#c9a400; --bad:#3d1c1c; --badb:#e57373; --line:#2c4332; } }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font:18px/1.7 "Segoe UI", system-ui, -apple-system, sans-serif; }
+  main { max-width: 860px; margin: 0 auto; padding: 24px 16px 80px; }
+  h1 { font-size: 2rem; margin: .2em 0; color: var(--green); }
+  h2 { font-size: 1.5rem; margin: 2em 0 .5em; padding-top: .6em; border-top: 3px solid var(--green); color: var(--green); }
+  h3 { font-size: 1.2rem; margin: 1.4em 0 .3em; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 14px 18px; margin: 12px 0; }
+  .tip { background: var(--soft); border-left: 6px solid var(--green); border-radius: 8px; padding: 10px 16px; margin: 12px 0; }
+  .warn { background: var(--warn); border-left: 6px solid var(--warnb); border-radius: 8px; padding: 10px 16px; margin: 12px 0; }
+  .bad { background: var(--bad); border-left: 6px solid var(--badb); border-radius: 8px; padding: 10px 16px; margin: 12px 0; }
+  ol, ul { padding-left: 1.4em; }
+  li { margin: .35em 0; }
+  code, kbd { font-family: ui-monospace, Menlo, Consolas, monospace; background: var(--soft); padding: 1px 6px; border-radius: 5px; font-size: .92em; word-break: break-word; }
+  pre { background: #10261a; color: #d6f5df; padding: 12px 16px; border-radius: 10px; overflow-x: auto; font-size: .92rem; line-height: 1.5; }
+  pre code { background: none; padding: 0; color: inherit; }
+  table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: .95em; }
+  th, td { border: 1px solid var(--line); padding: 8px 10px; text-align: left; vertical-align: top; }
+  th { background: var(--soft); }
+  .toc a { color: var(--green); }
+  .big { font-size: 1.25rem; font-weight: 700; }
+  .flow { display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin: 10px 0; }
+  .flow span { background: var(--soft); border: 2px solid var(--green); border-radius: 10px; padding: 6px 12px; font-weight: 600; }
+  @media print { body { background:#fff; color:#000; } pre { background:#eee; color:#000; } }
+</style>
+</head>
+<body>
+<main>
+
+<h1>🌿 AI Green Eye – Hướng dẫn sử dụng</h1>
+<p>Tài liệu này viết cho học sinh lớp 6. Cứ làm lần lượt <b>từng bước, từ trên xuống dưới</b>, không bỏ bước nào là chạy được. Nếu có chỗ nào không hiểu, nhờ thầy cô đọc phần <a href="#thaycô">“Dành cho thầy cô”</a> ở cuối.</p>
+
+<div class="card toc">
+<b>Mục lục</b>
+<ol>
+  <li><a href="#la-gi">Thiết bị này làm gì?</a></li>
+  <li><a href="#do-nghe">Cần chuẩn bị những gì?</a></li>
+  <li><a href="#noi-day">Kiểm tra dây nối</a></li>
+  <li><a href="#chay-server">BƯỚC 1 – Bật server trên máy tính</a></li>
+  <li><a href="#bat-pi">BƯỚC 2 – Bật thiết bị (Raspberry Pi)</a></li>
+  <li><a href="#dung">BƯỚC 3 – Dùng thiết bị</a></li>
+  <li><a href="#am-thanh">Bảng âm thanh: loa nói gì, nghĩa là gì, sửa sao?</a></li>
+  <li><a href="#tat">Tắt thiết bị đúng cách</a></li>
+  <li><a href="#hoi-dap">Hỏi – đáp nhanh</a></li>
+  <li><a href="#thaycô">Dành cho thầy cô (kỹ thuật)</a></li>
+  <li><a href="#code">Cho bạn nào tò mò: các file code</a></li>
+</ol>
+</div>
+
+<!-- ======================================================================= -->
+<h2 id="la-gi">1. Thiết bị này làm gì?</h2>
+<p>AI Green Eye là <b>“đôi mắt xanh”</b> giúp người khiếm thị biết một món đồ là <b>loại rác nào</b>, để bỏ vào đúng thùng.</p>
+<p>Bạn đưa món đồ trước camera. Thiết bị tự chụp ảnh, “nhờ trí tuệ nhân tạo xem giúp”, rồi <b>đọc to</b> kết quả:</p>
+<ul>
+  <li>“<b>Rác vô cơ.</b>” – chai nhựa, lon, hộp giấy, túi nilon…</li>
+  <li>“<b>Rác hữu cơ.</b>” – vỏ chuối, thức ăn thừa, lá cây…</li>
+  <li>“<b>Rác khác.</b>” – giấy ăn đã dùng, khẩu trang, pin…</li>
+  <li>Nếu là vật nguy hiểm (dao, kim, mảnh thủy tinh vỡ…), máy nói trước: “<b>Cảnh báo, đây là vật sắc nhọn.</b>”</li>
+</ul>
+
+<h3>Máy làm việc như thế nào? (đọc cho vui)</h3>
+<p>Có <b>hai thiết bị</b> làm việc cùng nhau:</p>
+<div class="flow">
+  <span>📷 Pi chụp ảnh</span> →
+  <span>💻 Máy tính (server)</span> →
+  <span>🧠 Gemini (AI của Google) nhìn ảnh</span> →
+  <span>💻 Máy tính</span> →
+  <span>🔊 Pi đọc to</span>
+</div>
+<p>Con <b>Raspberry Pi</b> nhỏ xíu và yếu, không tự hiểu được ảnh. Vì vậy nó gửi ảnh qua Wi-Fi cho <b>máy tính</b>. Máy tính hỏi bộ não <b>Gemini</b>, nhận câu trả lời rồi gửi về cho Pi đọc. Chương trình chạy trên máy tính gọi là <b>server</b> (máy chủ).</p>
+<div class="warn"><b>Vì thế phải có 3 thứ cùng lúc:</b> (1) server đang chạy trên máy tính, (2) Pi và máy tính <b>dùng chung một Wi-Fi</b>, (3) máy tính <b>có Internet</b>. Thiếu một thứ là thiết bị không nhận diện được.</div>
+
+<!-- ======================================================================= -->
+<h2 id="do-nghe">2. Cần chuẩn bị những gì?</h2>
+<table>
+<tr><th>Đồ dùng</th><th>Ghi chú</th></tr>
+<tr><td>Raspberry Pi Zero 2 W đã lắp sẵn camera, loa, nút bấm</td><td>Thầy cô đã cài chương trình sẵn trong Pi.</td></tr>
+<tr><td>Nguồn điện cho Pi (cục sạc + dây micro-USB, 5V)</td><td>Cắm vào cổng <b>PWR</b> (cổng ngoài cùng, có chữ PWR IN).</td></tr>
+<tr><td>Máy tính (Windows hoặc Mac) có Internet</td><td>Là máy sẽ chạy server.</td></tr>
+<tr><td>Wi-Fi mà <b>cả Pi và máy tính cùng nối</b></td><td>Xem mục “Hỏi – đáp” nếu Wi-Fi trường chặn.</td></tr>
+<tr><td>Thư mục <code>ssc2</code> chép trên máy tính</td><td>Bên trong có thư mục <code>server</code> và <code>pi2w-ssc</code>.</td></tr>
+</table>
+
+<!-- ======================================================================= -->
+<h2 id="noi-day">3. Kiểm tra dây nối (thầy cô thường đã nối sẵn)</h2>
+<p>Chỉ cần liếc xem dây có lỏng không. Bảng dưới là cách nối đúng để đối chiếu:</p>
+<table>
+<tr><th>Linh kiện</th><th>Chân của linh kiện</th><th>Nối vào Pi (số chân vật lí)</th></tr>
+<tr><td rowspan="5">Loa MAX98357A</td><td>VIN (5V)</td><td>Chân <b>2</b></td></tr>
+<tr><td>GND</td><td>Chân <b>6</b></td></tr>
+<tr><td>BCLK</td><td>Chân <b>12</b> (GPIO18)</td></tr>
+<tr><td>LRC</td><td>Chân <b>35</b> (GPIO19)</td></tr>
+<tr><td>DIN</td><td>Chân <b>40</b> (GPIO21)</td></tr>
+<tr><td rowspan="2">Nút bấm</td><td>Một chân</td><td>Chân <b>22</b> (GPIO25)</td></tr>
+<tr><td>Chân còn lại</td><td>Một chân <b>GND</b> (đất), ví dụ chân 20</td></tr>
+<tr><td>Camera Module 3</td><td>Dây dẹt</td><td>Khe camera (CSI) trên Pi</td></tr>
+</table>
+<div class="tip">Nút bấm chỉ có <b>2 chân</b>: một chân nối GPIO25, một chân nối GND. Ấn nút là hai chân chạm nhau. Không cần cắm vào chân 3V3.</div>
+<div class="bad"><b>Cẩn thận:</b> không cắm hoặc rút dây khi Pi đang có điện. Rút nguồn ra trước rồi mới sửa dây.</div>
+
+<!-- ======================================================================= -->
+<h2 id="chay-server">4. BƯỚC 1 – Bật server trên máy tính</h2>
+<p>Làm bước này <b>trước</b> khi bật Pi (nếu bật Pi trước cũng được, Pi sẽ tự chờ).</p>
+
+<h3>Nếu máy tính là WINDOWS</h3>
+<ol>
+  <li>Mở thư mục <code>ssc2</code>.</li>
+  <li><b>Bấm đúp</b> vào file <code>CHAY-SERVER-WINDOWS.bat</code>.</li>
+  <li>Một cửa sổ đen hiện ra và tự làm mọi việc. <b>Lần đầu</b> mất khoảng 1–3 phút (tự tải thư viện, cần Internet). Lần sau chỉ vài giây.</li>
+  <li>Nếu Windows hỏi <b>“Windows Defender Firewall”</b> cho phép “Python” truy cập mạng → bấm <b>“Cho phép truy cập” (Allow access)</b>, nhớ <b>tích cả hai ô</b> (mạng riêng và mạng công cộng). Nếu không bấm cho phép thì Pi không gọi vào được!</li>
+  <li>Nếu hiện chữ <b>“Windows protected your PC”</b> (SmartScreen): bấm <b>“More info” → “Run anyway”</b>.</li>
+</ol>
+<div class="warn"><b>Chưa cài Python?</b> Cửa sổ sẽ báo. Làm theo chữ trong cửa sổ: vào <a href="https://www.python.org/downloads/">python.org/downloads</a>, tải, cài và <b>nhớ tích ô “Add python.exe to PATH”</b>. Cài xong, bấm đúp file <code>.bat</code> lại.</div>
+
+<h3>Nếu máy tính là MAC</h3>
+<ol>
+  <li>Mở thư mục <code>ssc2</code>.</li>
+  <li><b>Bấm đúp</b> vào file <code>CHAY-SERVER-MAC.command</code>.</li>
+  <li>Nếu Mac báo “không thể mở vì không xác định được nhà phát triển”: <b>bấm chuột phải vào file → chọn Mở → bấm Mở</b>.</li>
+  <li>Nếu bấm đúp chỉ mở ra như văn bản: mở ứng dụng <b>Terminal</b>, gõ <code>cd </code> (có dấu cách), kéo thư mục <code>ssc2</code> vào cửa sổ Terminal, bấm Enter, rồi gõ:
+  <pre><code>bash CHAY-SERVER-MAC.command</code></pre></li>
+  <li>Nếu Mac hỏi cho phép “Python” nhận kết nối mạng đến → bấm <b>Cho phép (Allow)</b>.</li>
+</ol>
+
+<h3>Thành công khi thấy bảng này</h3>
+<pre><code>==============================================================
+  SERVER AI GREEN EYE ĐANG CHẠY  –  ĐỪNG ĐÓNG CỬA SỔ NÀY!
+  Địa chỉ máy tính này (Pi sẽ tự tìm, không cần gõ):
+      http://192.168.1.159:8080
+==============================================================</code></pre>
+<div class="tip big">✅ Thấy bảng này là xong Bước 1. <b>Để nguyên cửa sổ đó, đừng đóng.</b> Đóng cửa sổ là server tắt, Pi sẽ không nhận diện được nữa.</div>
+<p>Pi tự tìm ra địa chỉ của server, <b>bạn không cần gõ địa chỉ vào đâu cả</b>.</p>
+
+<div class="bad"><b>Nếu thấy chữ [LỖI] Chưa có GEMINI_API_KEY:</b> xem mục <a href="#hoi-dap">“Chìa khóa Gemini”</a> bên dưới.</div>
+
+<!-- ======================================================================= -->
+<h2 id="bat-pi">5. BƯỚC 2 – Bật thiết bị (Raspberry Pi)</h2>
+<ol>
+  <li>Cắm nguồn điện vào Pi. (Pi không có nút nguồn: cắm là bật.)</li>
+  <li>Chờ khoảng <b>30–60 giây</b> cho Pi khởi động. Lần đầu tiên có thể lâu hơn vì Pi phải tải các câu nói từ server.</li>
+  <li><b>Lắng nghe loa.</b> Loa sẽ nói lần lượt (theo thứ tự):
+    <ol>
+      <li>Một câu báo <b>Wi-Fi đã kết nối</b>.</li>
+      <li>Một câu báo <b>camera sẵn sàng</b>.</li>
+      <li>Một câu báo <b>hệ thống sẵn sàng</b>.</li>
+      <li>Rồi tự động bắt đầu chụp và phân tích liên tục.</li>
+    </ol>
+  </li>
+</ol>
+<div class="tip big">✅ Nghe đủ 3 câu trên (đại ý như vậy) là thiết bị đã sẵn sàng!</div>
+<p>Nếu loa nói câu khác (báo lỗi) thì xem <a href="#am-thanh">bảng âm thanh</a> bên dưới để biết cách sửa.</p>
+
+<!-- ======================================================================= -->
+<h2 id="dung">6. BƯỚC 3 – Dùng thiết bị</h2>
+<h3>Chế độ liên tục</h3>
+<p>Sau khi “Hệ thống sẵn sàng”, thiết bị <b>tự chụp ảnh – phân tích – đọc kết quả, lặp đi lặp lại</b> mãi. Mỗi vòng khoảng 6–15 giây. Bạn không cần ấn gì.</p>
+<ul>
+  <li><b>Ấn nút một lần</b> → máy nói “<b>Đã tắt phân tích.</b>” và ngừng chụp.</li>
+  <li><b>Ấn nút lần nữa</b> → máy nói “<b>Đã bật phân tích liên tục.</b>” và chụp lại.</li>
+</ul>
+<p>Ấn nút lúc máy đang đọc giữa chừng thì máy <b>im ngay</b>.</p>
+
+<h3>Cách đưa đồ vật để máy nhận đúng</h3>
+<ol>
+  <li>Cầm món đồ <b>trước ống kính, cách khoảng 20–30 cm</b> (khoảng một gang tay).</li>
+  <li>Món đồ nên <b>chiếm phần lớn khung hình</b>.</li>
+  <li><b>Giữ yên</b> khoảng 2 giây (tay rung thì ảnh bị mờ).</li>
+  <li>Chỗ có <b>đủ ánh sáng</b>. Phòng tối thì máy không thấy.</li>
+  <li>Phía sau đừng để quá nhiều đồ lộn xộn.</li>
+  <li>Đợi một vòng (khoảng 6–15 giây) sẽ nghe kết quả.</li>
+</ol>
+<div class="warn">Nếu máy cứ nói “<b>Chưa thấy vật. Hãy đưa vật vào trước camera.</b>” thì có nghĩa là camera đang không thấy món đồ nào rõ ràng: đưa đồ lại gần hơn, giữ yên hơn, hoặc ra chỗ sáng hơn.</div>
+
+<!-- ======================================================================= -->
+<h2 id="am-thanh">7. Bảng âm thanh: loa nói gì, nghĩa là gì, sửa sao?</h2>
+
+<h3>Những câu BÌNH THƯỜNG (mọi việc đều tốt)</h3>
+<table>
+<tr><th>Loa nói (đại ý)</th><th>Nghĩa là</th></tr>
+<tr><td>Wi-Fi đã kết nối</td><td>Pi đã nối được mạng.</td></tr>
+<tr><td>Camera sẵn sàng</td><td>Camera hoạt động tốt.</td></tr>
+<tr><td>Hệ thống sẵn sàng</td><td>Tìm thấy server, mọi thứ OK, bắt đầu làm việc.</td></tr>
+<tr><td>Rác vô cơ. / Rác hữu cơ. / Rác khác.</td><td>Kết quả phân loại.</td></tr>
+<tr><td>Cảnh báo, đây là vật sắc nhọn.</td><td>Vật nguy hiểm, cẩn thận kẻo đứt tay!</td></tr>
+<tr><td>Chưa thấy vật. Hãy đưa vật vào trước camera.</td><td>Camera không thấy món đồ nào rõ.</td></tr>
+<tr><td>Đã tắt phân tích. / Đã bật phân tích liên tục.</td><td>Bạn vừa ấn nút.</td></tr>
+</table>
+
+<h3>Những câu BÁO LỖI (cần sửa)</h3>
+<table>
+<tr><th>Loa nói</th><th>Nguyên nhân</th><th>Cách sửa</th></tr>
+<tr>
+  <td><b>“Chưa kết nối được Wi-Fi. Hãy kiểm tra mạng.”</b></td>
+  <td>Pi không nối được Wi-Fi.</td>
+  <td>
+    <ol>
+      <li>Wi-Fi có đang bật không? Pi có ở gần bộ phát Wi-Fi không?</li>
+      <li>Pi chỉ nối được Wi-Fi mà nó đã “nhớ”. Nếu đây là nơi mới, nhờ thầy cô dạy Pi Wi-Fi mới (xem mục thầy cô).</li>
+      <li>Thử rút nguồn Pi, đợi 5 giây, cắm lại.</li>
+    </ol>
+  </td>
+</tr>
+<tr>
+  <td><b>“Chưa kết nối được camera. Hãy kiểm tra dây camera.”</b></td>
+  <td>Pi không thấy camera.</td>
+  <td>
+    <ol>
+      <li>Rút nguồn Pi.</li>
+      <li>Kiểm tra dây dẹt camera cắm chặt vào khe, đúng chiều (mặt có các sợi đồng quay về phía mạch).</li>
+      <li>Cắm nguồn lại.</li>
+    </ol>
+  </td>
+</tr>
+<tr>
+  <td><b>“Chưa kết nối được máy chủ. Hãy bật máy chủ và kiểm tra mạng.”</b><br>(đây là lỗi hay gặp nhất)</td>
+  <td>Pi nối được Wi-Fi nhưng <b>không tìm thấy server</b>.</td>
+  <td>
+    Kiểm tra lần lượt 4 điều:
+    <ol>
+      <li><b>Server đã chạy chưa?</b> Trên máy tính phải có cửa sổ “SERVER AI GREEN EYE ĐANG CHẠY”. Chưa có thì làm lại <a href="#chay-server">Bước 1</a>.</li>
+      <li><b>Pi và máy tính có cùng Wi-Fi không?</b> Phải cùng một tên Wi-Fi.</li>
+      <li><b>Tường lửa</b> có chặn không? Lúc chạy server lần đầu, nếu máy hỏi “cho phép Python?” mà bạn bấm “Không” thì phải bật lại: Windows → <i>Cài đặt → Quyền riêng tư &amp; bảo mật → Bảo mật Windows → Tường lửa → Cho phép ứng dụng</i> → tích Python.</li>
+      <li>Máy tính có bị <b>ngủ</b> không? Máy ngủ là server tắt. Hãy cắm sạc và đặt “không bao giờ ngủ” khi dùng.</li>
+    </ol>
+    Sửa xong chờ khoảng 5–10 giây, Pi tự thử lại và nói “Hệ thống sẵn sàng”.
+  </td>
+</tr>
+<tr>
+  <td><b>“Lỗi thao tác.”</b></td>
+  <td>Một lỗi chung: ví dụ Gemini bận, máy tính mất Internet, hoặc ảnh bị lỗi.</td>
+  <td>
+    <ol>
+      <li>Máy tính (chạy server) còn Internet không? Mở thử một trang web.</li>
+      <li>Nhìn cửa sổ server xem có dòng chữ đỏ/“ERROR” không. Nếu có chữ <code>gemini_error</code> hoặc <code>429</code> nghĩa là chìa khóa Gemini hết lượt dùng → xem “Chìa khóa Gemini”.</li>
+      <li>Đợi một chút, máy tự thử lại.</li>
+    </ol>
+  </td>
+</tr>
+<tr>
+  <td><b>Không nghe tiếng gì cả</b></td>
+  <td>Pi chưa chạy, hoặc loa chưa nối đúng.</td>
+  <td>
+    <ol>
+      <li>Đèn nhỏ trên Pi có nhấp nháy không? Không có đèn → kiểm tra nguồn điện.</li>
+      <li>Chờ đủ 1 phút sau khi cắm nguồn.</li>
+      <li>Kiểm tra 5 dây của loa (xem mục <a href="#noi-day">Kiểm tra dây nối</a>).</li>
+    </ol>
+  </td>
+</tr>
+</table>
+
+<!-- ======================================================================= -->
+<h2 id="tat">8. Tắt thiết bị đúng cách</h2>
+<ol>
+  <li><b>Pi:</b> đợi máy đọc xong câu đang nói (hoặc ấn nút tắt phân tích), rồi rút nguồn điện. Đừng rút điện nhiều lần liên tục kẻo hỏng thẻ nhớ.</li>
+  <li><b>Server:</b> trong cửa sổ server, bấm <kbd>Ctrl</kbd> + <kbd>C</kbd>, hoặc đóng cửa sổ.</li>
+</ol>
+
+<!-- ======================================================================= -->
+<h2 id="hoi-dap">9. Hỏi – đáp nhanh</h2>
+
+<h3 id="gemini">Chìa khóa Gemini là gì? Lấy ở đâu?</h3>
+<p>Gemini cần một “chìa khóa” (gọi là <b>API key</b>) để biết ai đang dùng. Thầy cô <b>đã điền sẵn</b> chìa khóa trong file <code>server/.env</code>, nên thường bạn không cần làm gì.</p>
+<p>Chỉ khi báo thiếu chìa khóa, hoặc chìa khóa hết lượt dùng, mới cần làm:</p>
+<ol>
+  <li>Vào <a href="https://aistudio.google.com/apikey">aistudio.google.com/apikey</a> (đăng nhập tài khoản Google, <b>nhờ thầy cô</b>), bấm “Create API key”, sao chép dãy chữ dài.</li>
+  <li>Mở file <code>server/.env</code> bằng <b>Notepad</b> (Windows) hoặc <b>TextEdit</b> (Mac). (Không thấy file? Trong Windows bật “Hiện các mục bị ẩn”; trong Mac bấm <kbd>Cmd</kbd>+<kbd>Shift</kbd>+<kbd>.</kbd> để hiện file ẩn.)</li>
+  <li>Tìm dòng <code>GEMINI_API_KEY=...</code>, dán chìa khóa mới ngay sau dấu <code>=</code>, <b>không có dấu cách</b>.</li>
+  <li>Lưu file, đóng server (Ctrl+C), chạy lại server.</li>
+</ol>
+<div class="warn"><b>Giữ bí mật:</b> chìa khóa giống mật khẩu. Đừng đăng lên mạng hay gửi cho người lạ. Nếu lỡ lộ, nhờ thầy cô xóa và tạo chìa mới.</div>
+
+<h3>Mang sang máy tính khác thì làm sao?</h3>
+<p>Chép cả thư mục <code>ssc2</code> sang máy mới (USB cũng được), rồi làm lại <a href="#chay-server">Bước 1</a>. Không phải đổi cài đặt nào, Pi tự tìm server ở máy mới.</p>
+<div class="tip">Mẹo: trước khi chép, nếu thấy thư mục <code>server/.venv</code> thì <b>xóa nó đi</b> (nó chỉ là bộ thư viện, máy mới sẽ tự tạo lại). Chép sẽ nhanh hơn nhiều.</div>
+
+<h3>Cả lớp cùng bật server, Pi có bị nhầm không?</h3>
+<p><b>Có thể!</b> Pi tự tìm server bằng cách nghe “tiếng gọi” trong Wi-Fi, nên nếu <b>nhiều nhóm cùng Wi-Fi và cùng bật server</b>, Pi có thể nối nhầm vào server của nhóm khác (vẫn chạy được, nhưng dùng chung máy của bạn). Có hai cách:</p>
+<ul>
+  <li>Mỗi nhóm dùng Wi-Fi riêng (ví dụ phát Wi-Fi từ điện thoại hoặc từ chính máy tính của nhóm).</li>
+  <li>Hoặc thầy cô cố định địa chỉ server cho từng Pi (xem mục thầy cô).</li>
+</ul>
+
+<h3>Wi-Fi của trường không chạy được?</h3>
+<p>Một số Wi-Fi công cộng (trường học, quán cà phê) <b>cấm các thiết bị nói chuyện với nhau</b> (gọi là “cách ly client”) hoặc bắt đăng nhập bằng trình duyệt. Pi không đăng nhập được kiểu đó. Cách chắc ăn nhất: <b>phát Wi-Fi từ điện thoại</b> (bật “điểm truy cập cá nhân / hotspot”), cho cả máy tính và Pi cùng nối vào đó. Nhờ thầy cô dạy Pi Wi-Fi này trước.</p>
+
+<h3>Máy cứ trả lời sai loại rác?</h3>
+<p>Máy là AI nên có lúc sai. Thử: đưa gần hơn, giữ yên hơn, thêm ánh sáng, bỏ bớt đồ lộn xộn phía sau. Đồ trong túi bóng sẽ được phân loại theo đồ <b>bên trong</b> túi.</p>
+
+<h3>Tại sao mỗi vòng mất 6–15 giây?</h3>
+<p>Ảnh phải đi qua Wi-Fi, qua Internet tới Gemini, rồi quay về, cộng thêm thời gian máy đọc to. Đó là bình thường.</p>
+
+<!-- ======================================================================= -->
+<h2 id="thaycô">10. Dành cho thầy cô (kỹ thuật)</h2>
+
+<h3>Cấu trúc thư mục</h3>
+<pre><code>ssc2/
+├── HUONG-DAN.html            ← tài liệu này
+├── CHAY-SERVER-WINDOWS.bat   ← bấm đúp để chạy server (Windows)
+├── CHAY-SERVER-MAC.command   ← bấm đúp để chạy server (Mac)
+├── server/                   ← chương trình máy chủ (chạy trên máy tính)
+│   ├── server.py             ← code server (đã chú thích tiếng Việt)
+│   ├── start.sh / start.bat  ← tự tạo môi trường + chạy server
+│   ├── requirements.txt      ← thư viện cần (edge-tts)
+│   └── .env                  ← chìa khóa Gemini (GEMINI_API_KEY)  ★ GIỮ BÍ MẬT
+└── pi2w-ssc/                 ← chương trình trên Raspberry Pi
+    ├── app.py, config.py, classifier.py, hardware.py, server_client.py
+    ├── sounds/               ← các câu thông báo hệ thống (.mp3)
+    ├── install.sh            ← cài lên Pi
+    └── them-wifi.sh          ← dạy Pi một Wi-Fi mới</code></pre>
+
+<h3>Các giá trị đã cố định (không cần cấu hình)</h3>
+<table>
+<tr><th>Thông số</th><th>Giá trị</th><th>Nằm ở</th></tr>
+<tr><td>Mật khẩu Pi ↔ server (token)</td><td><code>d26a5af4…0db6da1f</code> (ghi cả hai bên)</td><td><code>server/server.py</code> (<code>DEFAULT_TOKEN</code>) và <code>pi2w-ssc/config.py</code></td></tr>
+<tr><td>Địa chỉ server</td><td><code>auto</code> – Pi tự tìm</td><td><code>pi2w-ssc/config.py</code></td></tr>
+<tr><td>Cổng server / cổng báo hiệu</td><td>TCP 8080 / UDP 8081</td><td>cả hai bên</td></tr>
+<tr><td>Nút bấm</td><td>GPIO25 (chân 22), nối GND, kích mức thấp</td><td><code>pi2w-ssc/config.py</code></td></tr>
+<tr><td>Chế độ liên tục</td><td>Bật ngay khi khởi động</td><td><code>pi2w-ssc/config.py</code></td></tr>
+<tr><td>Chìa khóa Gemini</td><td>Điền trong <code>server/.env</code> (duy nhất thứ phải có)</td><td><code>server/.env</code></td></tr>
+</table>
+<div class="warn"><b>Bảo mật:</b> <code>server/.env</code> chứa chìa khóa Gemini thật. Đã chép sang máy học sinh thì <b>ai có thư mục cũng dùng được chìa đó</b>. Với bài thi thì chấp nhận được, nhưng nên đặt hạn mức/giới hạn trong Google AI Studio và thu hồi (xóa) chìa sau cuộc thi.</div>
+
+<h3>Cách Pi tự tìm server</h3>
+<p>Server cứ 2 giây phát một gói UDP quảng bá <code>AGEYE|8080</code> tới cổng 8081. Pi lắng nghe cổng đó lúc khởi động hoặc khi mất kết nối, lấy địa chỉ IP của người gửi làm địa chỉ server. Chỉ hoạt động khi Pi và máy tính ở <b>cùng một mạng LAN</b> (cùng Wi-Fi, không bật “cách ly client”). Tailscale không chuyển được gói quảng bá: nếu dùng Tailscale, cố định địa chỉ như dưới đây.</p>
+
+<h3>Cố định địa chỉ server cho một Pi (tuỳ chọn)</h3>
+<p>Trên Pi, tạo file <code>/opt/ai-green-eye/.env</code>:</p>
+<pre><code>MAC_SERVER_URL=http://192.168.1.50:8080</code></pre>
+<p>rồi <code>sudo systemctl restart ai-green-eye</code>. Nếu địa chỉ này không nối được, Pi vẫn thử tự tìm bằng tiếng báo hiệu. Các tuỳ chọn khác xem <code>pi2w-ssc/.env.example</code>.</p>
+
+<h3>Truy cập và xem log của Pi</h3>
+<pre><code>ssh root@&lt;tên-hoặc-IP-của-Pi&gt;
+journalctl -u ai-green-eye -f          # xem nhật ký trực tiếp (Ctrl+C để thoát)
+systemctl restart ai-green-eye         # khởi động lại chương trình
+systemctl status ai-green-eye          # xem đang chạy hay không</code></pre>
+
+<h3>Dạy Pi một Wi-Fi mới</h3>
+<p>Chép <code>them-wifi.sh</code> lên Pi (hoặc chạy qua ssh) rồi:</p>
+<pre><code>sudo bash them-wifi.sh "TênWiFi" "MậtKhẩu"</code></pre>
+<p>Pi hiện đã nhớ hai mạng cũ; mạng mới được thêm vào (có sao lưu <code>.bak</code>). Nếu chưa vào được Pi (chưa có Wi-Fi), cắm thẻ nhớ vào máy tính và sửa <code>/etc/wpa_supplicant/wpa_supplicant.conf</code>, hoặc dùng Wi-Fi “hotspot điện thoại” trùng tên/mật khẩu với mạng Pi đã nhớ.</p>
+
+<h3>Cập nhật chương trình trên Pi</h3>
+<p>Sau khi sửa code trong <code>pi2w-ssc</code>, chép thư mục lên Pi và chạy:</p>
+<pre><code>cd pi2w-ssc &amp;&amp; sudo bash install.sh</code></pre>
+<p>Script cài gói, chép chương trình sang <code>/opt/ai-green-eye</code>, rồi khởi động lại service.</p>
+
+<h3>Kiểm thử tự động</h3>
+<pre><code>cd pi2w-ssc &amp;&amp; python3 -m unittest discover -s tests -v
+cd server   &amp;&amp; python3 -m unittest discover -s tests -v</code></pre>
+<p>Cần Python 3.9 trở lên. Các test chạy trên máy thường (giả lập loa, camera, Gemini).</p>
+
+<h3>Lưu ý</h3>
+<ul>
+  <li>Mỗi vòng nhận diện gọi Gemini một lần: để chạy nhiều giờ liên tục có thể chạm giới hạn miễn phí. Muốn tiết kiệm: tăng <code>LOOP_INTERVAL_SECONDS</code>.</li>
+  <li>Giọng đọc kết quả lấy từ dịch vụ đọc của Microsoft Edge (thư viện edge-tts), cần Internet ở lần chạy đầu để tải các câu (sau đó lưu sẵn trong <code>pi2w-ssc/cache</code> trên Pi).</li>
+  <li>Phần cứng (cảm biến, camera, loa) và kết quả Gemini thực tế cần được kiểm tra trên thiết bị thật trước giờ thi.</li>
+</ul>
+
+<!-- ======================================================================= -->
+<h2 id="code">11. Cho bạn nào tò mò: các file code</h2>
+<p>Mọi file code đều có <b>chú thích tiếng Việt rất kỹ</b> (những dòng bắt đầu bằng <code>#</code> hoặc nằm trong ba dấu nháy kép). Đọc từ trên xuống dưới là hiểu. Gợi ý thứ tự đọc:</p>
+<table>
+<tr><th>File</th><th>Việc của nó</th><th>Độ khó</th></tr>
+<tr><td><code>pi2w-ssc/classifier.py</code></td><td>“Bài giao việc” gửi cho Gemini và bảng các câu nói. Dễ đọc nhất!</td><td>⭐</td></tr>
+<tr><td><code>pi2w-ssc/config.py</code></td><td>Các con số cài đặt.</td><td>⭐</td></tr>
+<tr><td><code>pi2w-ssc/app.py</code></td><td>Chương trình chính: chụp → phân tích → đọc, nút bật/tắt.</td><td>⭐⭐</td></tr>
+<tr><td><code>pi2w-ssc/hardware.py</code></td><td>Điều khiển camera, loa, nút bấm.</td><td>⭐⭐</td></tr>
+<tr><td><code>pi2w-ssc/server_client.py</code></td><td>Nói chuyện với server, tự tìm server.</td><td>⭐⭐⭐</td></tr>
+<tr><td><code>server/server.py</code></td><td>Máy chủ: nhận ảnh, gọi Gemini, tạo giọng đọc.</td><td>⭐⭐⭐</td></tr>
+</table>
+
+<h3>Thử sửa một chút cho vui (nhớ nhờ thầy cô)</h3>
+<ul>
+  <li><b>Đổi lời đọc:</b> trong <code>classifier.py</code>, bảng <code>SPOKEN</code>, đổi “Rác vô cơ.” thành câu bạn thích. (Rút điện Pi cắm lại, máy tự tải và đọc câu mới. Nếu vẫn đọc câu cũ thì xóa thư mục <code>cache</code> trên Pi.)</li>
+  <li><b>Đổi giọng đọc sang giọng nam:</b> trong <code>server/.env</code> thêm dòng <code>TTS_VOICE=vi-VN-NamMinhNeural</code>. Với các câu đã lưu sẵn, xóa thư mục <code>cache</code> trên Pi để máy đọc lại bằng giọng mới.</li>
+  <li><b>Thêm quy tắc phân loại:</b> trong <code>classifier.py</code>, mục <code>PROMPT</code>, thêm một dòng mô tả loại rác bạn muốn (ví dụ “pin là rác khác”). Thử xem Gemini có nghe lời không.</li>
+</ul>
+
+</main>
+</body>
+</html>

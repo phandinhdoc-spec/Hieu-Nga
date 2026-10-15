@@ -1,7 +1,15 @@
-"""Prompt gửi Gemini và bộ đọc kết quả phân loại rác.
+"""BỘ NÃO PHÂN LOẠI RÁC: câu hỏi gửi Gemini + cách "đọc hiểu" câu trả lời.
 
-Gemini chỉ được trả về các mã cố định (xem PROMPT). Pi đọc mã rồi tự chọn câu
-thông báo, nên người dùng chỉ nghe đúng các thông báo đã định sẵn.
+Làm sao để máy "nói" đúng và không nói linh tinh?
+  1. Ta dặn Gemini (trong biến PROMPT bên dưới) CHỈ ĐƯỢC trả lời bằng vài MÃ cố định:
+         VO_CO       = rác vô cơ        HUU_CO = rác hữu cơ     KHAC = rác khác
+         KHONG_THAY  = không thấy vật   SAC_NHON = vật sắc nhọn (đi kèm một mã nhóm)
+  2. Hàm parse_reply() đọc mã đó.
+  3. Pi tự chọn câu thông báo có sẵn (bảng SPOKEN) rồi đọc to.
+Nhờ vậy người dùng chỉ nghe đúng những câu đã định sẵn, dù Gemini có "lan man" cỡ nào.
+
+Muốn chỉnh cách phân loại (ví dụ thêm quy tắc mới) thì sửa nội dung PROMPT.
+Nhưng nhớ: PROMPT phải ngắn hơn MAX_PROMPT_CHARACTERS ký tự.
 """
 
 from __future__ import annotations
@@ -12,7 +20,7 @@ from dataclasses import dataclass
 
 
 class ReplyError(ValueError):
-    """Gemini trả về nội dung không đọc được thành kết quả phân loại."""
+    """Gemini trả về nội dung không đọc được thành kết quả phân loại (ví dụ trả lời lung tung)."""
 
 
 VO_CO = "VO_CO"
@@ -20,21 +28,31 @@ HUU_CO = "HUU_CO"
 KHAC = "KHAC"
 KHONG_THAY = "KHONG_THAY"
 SAC_NHON = "SAC_NHON"
+BAT = "BAT"  # thông báo bật/tắt chế độ liên tục (không phải mã Gemini)
+TAT = "TAT"
 
+# Bốn kết quả "nhóm" mà Gemini được phép trả về.
 CATEGORIES = (VO_CO, HUU_CO, KHAC, KHONG_THAY)
 
-# Câu Pi sẽ đọc (qua /tts của server, lưu cache trên Pi).
+# BẢNG CÂU THÔNG BÁO: mã -> câu Pi sẽ đọc.
+# Muốn đổi lời đọc thì sửa chữ ở đây (cache cũ tự bị bỏ vì tên file cache tính từ nội dung câu).
+# Các câu được nhờ server đọc một lần rồi lưu vào thư mục cache/ trên Pi.
 SPOKEN = {
     VO_CO: "Rác vô cơ.",
     HUU_CO: "Rác hữu cơ.",
     KHAC: "Rác khác.",
     SAC_NHON: "Cảnh báo, đây là vật sắc nhọn.",
     KHONG_THAY: "Chưa thấy vật. Hãy đưa vật vào trước camera.",
+    BAT: "Đã bật phân tích liên tục.",
+    TAT: "Đã tắt phân tích.",
 }
 
 # Server giới hạn 2.000 ký tự cho trường text; giữ dư để an toàn.
 MAX_PROMPT_CHARACTERS = 1800
 
+# PROMPT = "bài giao việc" gửi cho Gemini cùng với mỗi tấm ảnh.
+# Các quy tắc phân loại (vô cơ/hữu cơ/khác, túi bóng, vật sắc nhọn) đều nằm ở đây.
+# Dấu \ ở cuối dòng nghĩa là "nối với dòng dưới, không xuống dòng".
 PROMPT = """\
 Bạn là bộ phân loại rác cho thiết bị đeo hỗ trợ người khiếm thị. Ảnh chụp một vật \
 rác người dùng đang cầm hoặc đưa trước camera. Các quy tắc dưới đây có ưu tiên cao \
@@ -71,8 +89,12 @@ Nếu phân vân giữa các nhóm, chọn nhóm khả dĩ nhất.\
 """
 
 
-@dataclass(frozen=True, slots=True)
+@dataclass(frozen=True)
 class Verdict:
+    """PHÁN QUYẾT: kết quả cuối cùng sau khi đọc câu trả lời của Gemini."""
+
+    # category: nhóm rác. Có thể None nếu Gemini chỉ báo "sắc nhọn" mà không nói nhóm.
+    # sharp: có phải vật sắc nhọn không (cần cảnh báo).
     category: str | None  # VO_CO / HUU_CO / KHAC / KHONG_THAY, hoặc None nếu chỉ có cảnh báo
     sharp: bool
 
@@ -87,9 +109,15 @@ class Verdict:
 
 
 def parse_reply(text: str) -> Verdict:
-    """Đọc câu trả lời của Gemini thành Verdict; ném ReplyError nếu không rõ."""
+    """Đọc câu trả lời của Gemini thành Verdict; ném ReplyError nếu không rõ.
+
+    Gemini được dặn trả mã như "SAC_NHON VO_CO", nhưng đôi khi nó vẫn viết "Rác vô cơ"
+    hay bọc trong dấu ``. Hàm này "dễ tính": hiểu cả các cách viết đó, nhưng KHÔNG đoán mò:
+    trả về nhiều nhóm cùng lúc, hoặc không có mã nào, thì báo lỗi để Pi kêu báo lỗi.
+    """
     folded = _fold(text)
     sharp = _has_token(folded, SAC_NHON)
+    # Tìm xem trong câu trả lời có những nhóm nào.
     found = [category for category in CATEGORIES if _has_token(folded, category)]
     if len(found) > 1:
         raise ReplyError(f"Gemini trả nhiều nhóm cùng lúc: {text!r}")
@@ -102,7 +130,11 @@ def parse_reply(text: str) -> Verdict:
 
 
 def _fold(text: str) -> str:
-    """In hoa, bỏ dấu, mọi ký tự không phải chữ/số thành '_' ('rác vô cơ' -> 'RAC_VO_CO')."""
+    """Chuẩn hóa chữ để dễ so sánh: IN HOA, bỏ dấu tiếng Việt, ký tự lạ thành dấu '_'.
+
+    Ví dụ: "rác vô cơ." -> "_RAC_VO_CO_" ; "`HUU_CO`" -> "_HUU_CO_".
+    Hai dấu '_' ở đầu và cuối giúp tìm từ nguyên vẹn (xem _has_token).
+    """
     text = text.replace("đ", "d").replace("Đ", "D")
     stripped = "".join(
         character
@@ -113,4 +145,5 @@ def _fold(text: str) -> str:
 
 
 def _has_token(folded: str, token: str) -> bool:
+    """Câu có chứa NGUYÊN CẢ TỪ `token` không? (để "KHACH" không bị nhầm thành "KHAC")."""
     return f"_{token}_" in folded

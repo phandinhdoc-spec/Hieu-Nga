@@ -1,0 +1,13 @@
+AI GREEN EYE - BAT DAU O DAY
+============================
+
+1) Mo file  HUONG-DAN.html  (bam dup, se mo bang trinh duyet) de doc huong dan chi tiet.
+
+2) Tom tat 3 buoc:
+   - Windows: bam dup  CHAY-SERVER-WINDOWS.bat
+     Mac    : bam dup  CHAY-SERVER-MAC.command
+     (cua so server phai de mo, dung dong!)
+   - Cam nguon cho thiet bi Raspberry Pi, cho khoang 1 phut, nghe loa noi "he thong san sang".
+   - Dua do vat truoc camera (cach 20-30 cm, giu yen). Bam nut 1 lan = tat, bam lan nua = bat.
+
+3) Pi va may tinh phai dung CHUNG mot Wi-Fi, may tinh phai co Internet.
