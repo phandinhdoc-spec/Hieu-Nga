@@ -1,0 +1,23 @@
+[Unit]
+Description=AI Green Eye (SSC 2026) - Pi Zero 2 W waste classifier
+Wants=network-online.target
+After=network-online.target tailscaled.service sound.target
+
+[Service]
+Type=simple
+User=aigreeneye
+Group=aigreeneye
+WorkingDirectory=/opt/ai-green-eye
+EnvironmentFile=/opt/ai-green-eye/.env
+Environment=PYTHONUNBUFFERED=1
+ExecStart=/usr/bin/python3 /opt/ai-green-eye/app.py
+Restart=on-failure
+RestartSec=3
+TimeoutStopSec=10
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ReadWritePaths=/opt/ai-green-eye/cache
+
+[Install]
+WantedBy=multi-user.target
